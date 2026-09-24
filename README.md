@@ -115,22 +115,7 @@ Open [http://localhost:5173](http://localhost:5173) in your browser.
 
 ---
 
-## 🔑 Demo Role Credentials
 
-Use the **1-Click Fill** buttons on the Login page (`/login`) or sign in with:
-
-| Persona | Role | Default Email |
-| :--- | :--- | :--- |
-| **Ravi Kumar** | Farmer | `ravi.farmer@agritrade.in` |
-| **Ramesh Patel** | Collection Center Manager | `ramesh.hub@agritrade.in` |
-| **Dr. Suresh Sharma** | Quality Inspector | `suresh.lab@agritrade.in` |
-| **Priya Sundaram** | Enterprise Buyer | `priya.procure@agrofoods.com` |
-| **Balu Naidu** | Logistics Coordinator | `balu.logistics@kisanexpress.in` |
-| **Anita Roy** | Platform Administrator | `anita.admin@agritrade.in` |
-
-*(Password for demo accounts: any password, e.g. `password123`)*
-
----
 
 ## 📡 API Endpoints Overview
 
