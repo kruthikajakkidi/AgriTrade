@@ -26,6 +26,8 @@ import {
 export const Sidebar = ({ isOpen, closeSidebar }) => {
   const { currentUser } = useAuth();
 
+  if (!currentUser) return null;
+
   // Navigation schema per role
   const getNavItems = () => {
     switch (currentUser.role) {

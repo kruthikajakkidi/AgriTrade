@@ -6,7 +6,6 @@ import { AppDataProvider } from './context/AppDataContext';
 // Layout
 import { Navbar } from './components/layout/Navbar';
 import { Sidebar } from './components/layout/Sidebar';
-import { RoleSwitcherBar } from './components/layout/RoleSwitcherBar';
 import { MobileBottomNav } from './components/layout/MobileBottomNav';
 import { Toast } from './components/common/Toast';
 
@@ -28,9 +27,30 @@ import { LogisticsDashboard } from './pages/Logistics/LogisticsDashboard';
 import { AdminDashboard } from './pages/Admin/AdminDashboard';
 import { PublicTraceabilityPage } from './pages/Traceability/PublicTraceabilityPage';
 
+// Protected Route Guard
+const ProtectedRoute = ({ children, allowedRoles }) => {
+  const { currentUser } = useAuth();
+  const location = useLocation();
+
+  if (!currentUser) {
+    return <Navigate to="/login" state={{ from: location }} replace />;
+  }
+
+  if (allowedRoles && !allowedRoles.includes(currentUser.role)) {
+    return <Navigate to="/dashboard" replace />;
+  }
+
+  return children;
+};
+
 // Dynamic role router for /dashboard
 const DynamicDashboard = () => {
   const { currentUser } = useAuth();
+  const location = useLocation();
+
+  if (!currentUser) {
+    return <Navigate to="/login" state={{ from: location }} replace />;
+  }
 
   switch (currentUser.role) {
     case 'FARMER':
@@ -51,11 +71,13 @@ const DynamicDashboard = () => {
 
 // Layout Container
 const MainLayout = ({ children }) => {
+  const { currentUser } = useAuth();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const location = useLocation();
 
-  // On public or auth pages, don't show full app shell
+  // On public, auth, or unauthenticated pages, show clean layout without sidebar
   const isCleanPage =
+    !currentUser ||
     location.pathname === '/' ||
     location.pathname === '/login' ||
     location.pathname === '/register' ||
@@ -101,52 +123,246 @@ export function App() {
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
               <Route path="/trace/:lotId" element={<PublicTraceabilityPage />} />
+              <Route path="/lot/:id" element={<ProduceLotDetails />} />
+              <Route path="/buyer/marketplace" element={<BuyerDashboard />} />
 
               {/* Dynamic Role Dashboard */}
-              <Route path="/dashboard" element={<DynamicDashboard />} />
+              <Route
+                path="/dashboard"
+                element={
+                  <ProtectedRoute>
+                    <DynamicDashboard />
+                  </ProtectedRoute>
+                }
+              />
 
               {/* Farmer Routes */}
-              <Route path="/farmer/sell" element={<SellProduceWizard />} />
-              <Route path="/farmer/lots" element={<FarmerLotsView />} />
-              <Route path="/farmer/orders" element={<PurchaseOrdersView />} />
-              <Route path="/farmer/payments" element={<SettlementView />} />
-              <Route path="/farmer/disputes" element={<DisputeView />} />
-
-              {/* Lot Details */}
-              <Route path="/lot/:id" element={<ProduceLotDetails />} />
+              <Route
+                path="/farmer/sell"
+                element={
+                  <ProtectedRoute allowedRoles={['FARMER', 'ADMIN']}>
+                    <SellProduceWizard />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/farmer/lots"
+                element={
+                  <ProtectedRoute allowedRoles={['FARMER', 'ADMIN']}>
+                    <FarmerLotsView />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/farmer/orders"
+                element={
+                  <ProtectedRoute allowedRoles={['FARMER', 'ADMIN']}>
+                    <PurchaseOrdersView />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/farmer/payments"
+                element={
+                  <ProtectedRoute allowedRoles={['FARMER', 'ADMIN']}>
+                    <SettlementView />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/farmer/disputes"
+                element={
+                  <ProtectedRoute allowedRoles={['FARMER', 'ADMIN']}>
+                    <DisputeView />
+                  </ProtectedRoute>
+                }
+              />
 
               {/* Buyer Routes */}
-              <Route path="/buyer/marketplace" element={<BuyerDashboard />} />
-              <Route path="/buyer/orders" element={<PurchaseOrdersView />} />
-              <Route path="/buyer/deliveries" element={<LogisticsDashboard />} />
-              <Route path="/buyer/procurement" element={<AdminDashboard />} />
+              <Route
+                path="/buyer/orders"
+                element={
+                  <ProtectedRoute allowedRoles={['BUYER', 'ADMIN']}>
+                    <PurchaseOrdersView />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/buyer/deliveries"
+                element={
+                  <ProtectedRoute allowedRoles={['BUYER', 'ADMIN']}>
+                    <LogisticsDashboard />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/buyer/procurement"
+                element={
+                  <ProtectedRoute allowedRoles={['BUYER', 'ADMIN']}>
+                    <AdminDashboard />
+                  </ProtectedRoute>
+                }
+              />
 
               {/* Collection Center Routes */}
-              <Route path="/collection/incoming" element={<CollectionDashboard />} />
-              <Route path="/collection/lots" element={<FarmerLotsView />} />
-              <Route path="/collection/warehouse" element={<CollectionDashboard />} />
-              <Route path="/collection/dispatch" element={<LogisticsDashboard />} />
+              <Route
+                path="/collection/incoming"
+                element={
+                  <ProtectedRoute allowedRoles={['COLLECTION_CENTER', 'ADMIN']}>
+                    <CollectionDashboard />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/collection/lots"
+                element={
+                  <ProtectedRoute allowedRoles={['COLLECTION_CENTER', 'ADMIN']}>
+                    <FarmerLotsView />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/collection/warehouse"
+                element={
+                  <ProtectedRoute allowedRoles={['COLLECTION_CENTER', 'ADMIN']}>
+                    <CollectionDashboard />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/collection/dispatch"
+                element={
+                  <ProtectedRoute allowedRoles={['COLLECTION_CENTER', 'ADMIN']}>
+                    <LogisticsDashboard />
+                  </ProtectedRoute>
+                }
+              />
 
               {/* Quality Inspector Routes */}
-              <Route path="/inspector/queue" element={<InspectorDashboard />} />
-              <Route path="/inspector/reports" element={<InspectorDashboard />} />
-              <Route path="/inspector/history" element={<InspectorDashboard />} />
+              <Route
+                path="/inspector/queue"
+                element={
+                  <ProtectedRoute allowedRoles={['QUALITY_INSPECTOR', 'ADMIN']}>
+                    <InspectorDashboard />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/inspector/reports"
+                element={
+                  <ProtectedRoute allowedRoles={['QUALITY_INSPECTOR', 'ADMIN']}>
+                    <InspectorDashboard />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/inspector/history"
+                element={
+                  <ProtectedRoute allowedRoles={['QUALITY_INSPECTOR', 'ADMIN']}>
+                    <InspectorDashboard />
+                  </ProtectedRoute>
+                }
+              />
 
               {/* Logistics Fleet Routes */}
-              <Route path="/logistics/shipments" element={<LogisticsDashboard />} />
-              <Route path="/logistics/tracking" element={<LogisticsDashboard />} />
-              <Route path="/logistics/fleet" element={<LogisticsDashboard />} />
-              <Route path="/logistics/history" element={<LogisticsDashboard />} />
+              <Route
+                path="/logistics/shipments"
+                element={
+                  <ProtectedRoute allowedRoles={['LOGISTICS', 'ADMIN']}>
+                    <LogisticsDashboard />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/logistics/tracking"
+                element={
+                  <ProtectedRoute allowedRoles={['LOGISTICS', 'ADMIN']}>
+                    <LogisticsDashboard />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/logistics/fleet"
+                element={
+                  <ProtectedRoute allowedRoles={['LOGISTICS', 'ADMIN']}>
+                    <LogisticsDashboard />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/logistics/history"
+                element={
+                  <ProtectedRoute allowedRoles={['LOGISTICS', 'ADMIN']}>
+                    <LogisticsDashboard />
+                  </ProtectedRoute>
+                }
+              />
 
               {/* Admin Routes */}
-              <Route path="/admin/analytics" element={<AdminDashboard />} />
-              <Route path="/admin/lots" element={<FarmerLotsView />} />
-              <Route path="/admin/orders" element={<PurchaseOrdersView />} />
-              <Route path="/admin/warehouse" element={<CollectionDashboard />} />
-              <Route path="/admin/shipments" element={<LogisticsDashboard />} />
-              <Route path="/admin/settlements" element={<SettlementView />} />
-              <Route path="/admin/disputes" element={<DisputeView />} />
-              <Route path="/admin/audit" element={<AdminDashboard />} />
+              <Route
+                path="/admin/analytics"
+                element={
+                  <ProtectedRoute allowedRoles={['ADMIN']}>
+                    <AdminDashboard />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/admin/lots"
+                element={
+                  <ProtectedRoute allowedRoles={['ADMIN']}>
+                    <FarmerLotsView />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/admin/orders"
+                element={
+                  <ProtectedRoute allowedRoles={['ADMIN']}>
+                    <PurchaseOrdersView />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/admin/warehouse"
+                element={
+                  <ProtectedRoute allowedRoles={['ADMIN']}>
+                    <CollectionDashboard />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/admin/shipments"
+                element={
+                  <ProtectedRoute allowedRoles={['ADMIN']}>
+                    <LogisticsDashboard />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/admin/settlements"
+                element={
+                  <ProtectedRoute allowedRoles={['ADMIN']}>
+                    <SettlementView />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/admin/disputes"
+                element={
+                  <ProtectedRoute allowedRoles={['ADMIN']}>
+                    <DisputeView />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/admin/audit"
+                element={
+                  <ProtectedRoute allowedRoles={['ADMIN']}>
+                    <AdminDashboard />
+                  </ProtectedRoute>
+                }
+              />
 
               {/* Fallback */}
               <Route path="*" element={<Navigate to="/" replace />} />

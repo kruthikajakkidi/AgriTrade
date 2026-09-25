@@ -75,9 +75,9 @@ export const AppDataProvider = ({ children }) => {
     try {
       const res = await api.createLot({
         ...lotData,
-        farmerId: currentUser.id,
-        farmerName: currentUser.name,
-        farmerPhone: currentUser.phone
+        farmerId: currentUser?.id,
+        farmerName: currentUser?.name || 'Farmer',
+        farmerPhone: currentUser?.phone || ''
       });
       if (res.lot) {
         setLots(prev => [res.lot, ...prev]);
@@ -95,8 +95,8 @@ export const AppDataProvider = ({ children }) => {
     try {
       const res = await api.updateLotStatus(lotId, {
         targetStatus,
-        actorName: currentUser.name,
-        actorRole: currentUser.role,
+        actorName: currentUser?.name || 'User',
+        actorRole: currentUser?.role || 'SYSTEM',
         ...metadata
       });
       if (res.lot) {
@@ -115,8 +115,8 @@ export const AppDataProvider = ({ children }) => {
     try {
       const res = await api.inspectLot(lotId, {
         ...inspectionData,
-        inspectorName: currentUser.name,
-        inspectorId: currentUser.id
+        inspectorName: currentUser?.name || 'Certified Inspector',
+        inspectorId: currentUser?.id || 'usr_insp'
       });
       if (res.lot) {
         setLots(prev => prev.map(l => l.id === lotId ? res.lot : l));
@@ -134,9 +134,9 @@ export const AppDataProvider = ({ children }) => {
     try {
       const res = await api.createOrder({
         ...orderData,
-        buyerId: currentUser.id,
-        buyerName: currentUser.name,
-        buyerCompany: currentUser.organization || 'Enterprise Buyer'
+        buyerId: currentUser?.id,
+        buyerName: currentUser?.name || 'Enterprise Buyer',
+        buyerCompany: currentUser?.organization || 'Enterprise Buyer'
       });
       if (res.order) {
         setOrders(prev => [res.order, ...prev]);
@@ -152,7 +152,7 @@ export const AppDataProvider = ({ children }) => {
 
   const updateOrderStatus = async (orderId, status, notes) => {
     try {
-      const res = await api.updateOrderStatus(orderId, { status, notes, actorName: currentUser.name });
+      const res = await api.updateOrderStatus(orderId, { status, notes, actorName: currentUser?.name || 'User' });
       if (res.order) {
         setOrders(prev => prev.map(o => o.id === orderId ? res.order : o));
         showToast(`PO status updated to ${status}`, 'success');
@@ -167,7 +167,7 @@ export const AppDataProvider = ({ children }) => {
     try {
       const res = await api.updateShipmentStatus(shipmentId, {
         ...updates,
-        actorName: currentUser.name
+        actorName: currentUser?.name || 'User'
       });
       if (res.shipment) {
         setShipments(prev => prev.map(s => s.id === shipmentId ? res.shipment : s));
@@ -183,7 +183,7 @@ export const AppDataProvider = ({ children }) => {
     try {
       const res = await api.moveWarehouseStock({
         ...moveData,
-        actorName: currentUser.name
+        actorName: currentUser?.name || 'User'
       });
       showToast(`Stock moved from ${moveData.fromSection} to ${moveData.toSection}`, 'success');
       fetchAllData();
@@ -209,8 +209,8 @@ export const AppDataProvider = ({ children }) => {
     try {
       const res = await api.createDispute({
         ...disputeData,
-        farmerId: currentUser.id,
-        farmerName: currentUser.name
+        farmerId: currentUser?.id,
+        farmerName: currentUser?.name || 'Farmer'
       });
       if (res.dispute) {
         setDisputes(prev => [res.dispute, ...prev]);
@@ -227,7 +227,7 @@ export const AppDataProvider = ({ children }) => {
     try {
       const res = await api.updateDispute(disputeId, {
         ...updates,
-        actorName: currentUser.name
+        actorName: currentUser?.name || 'User'
       });
       if (res.dispute) {
         setDisputes(prev => prev.map(d => d.id === disputeId ? res.dispute : d));

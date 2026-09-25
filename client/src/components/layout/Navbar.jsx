@@ -115,17 +115,19 @@ export const Navbar = ({ toggleSidebar, sidebarOpen }) => {
           {/* Right: Auth / Action Buttons */}
           <div className="flex items-center gap-2 sm:gap-3">
             {/* If user is logged in, show Dashboard link */}
-            <Link
-              to="/dashboard"
-              className={`hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition ${
-                location.pathname === '/dashboard'
-                  ? 'bg-emerald-50 text-emerald-800 border border-emerald-200'
-                  : 'text-stone-700 hover:bg-stone-100'
-              }`}
-            >
-              <LayoutDashboard className="w-3.5 h-3.5 text-emerald-700" />
-              <span>Dashboard</span>
-            </Link>
+            {currentUser && (
+              <Link
+                to="/dashboard"
+                className={`hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition ${
+                  location.pathname === '/dashboard'
+                    ? 'bg-emerald-50 text-emerald-800 border border-emerald-200'
+                    : 'text-stone-700 hover:bg-stone-100'
+                }`}
+              >
+                <LayoutDashboard className="w-3.5 h-3.5 text-emerald-700" />
+                <span>Dashboard</span>
+              </Link>
+            )}
 
             {/* Notifications (if user has active session) */}
             {currentUser && (
@@ -186,25 +188,27 @@ export const Navbar = ({ toggleSidebar, sidebarOpen }) => {
               </div>
             )}
 
-            {/* Login & Register Buttons */}
-            <Link
-              to="/login"
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-stone-200 text-xs font-semibold text-stone-700 hover:text-stone-900 hover:bg-stone-50 transition"
-            >
-              <LogIn className="w-3.5 h-3.5 text-stone-500" />
-              <span>Login</span>
-            </Link>
+            {/* If logged out: Show Login & Register buttons */}
+            {!currentUser ? (
+              <>
+                <Link
+                  to="/login"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-stone-200 text-xs font-semibold text-stone-700 hover:text-stone-900 hover:bg-stone-50 transition"
+                >
+                  <LogIn className="w-3.5 h-3.5 text-stone-500" />
+                  <span>Login</span>
+                </Link>
 
-            <Link
-              to="/register"
-              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-semibold shadow-xs transition"
-            >
-              <UserPlus className="w-3.5 h-3.5" />
-              <span className="hidden sm:inline">Register</span>
-            </Link>
-
-            {/* Profile Dropdown */}
-            {currentUser && (
+                <Link
+                  to="/register"
+                  className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-semibold shadow-xs transition"
+                >
+                  <UserPlus className="w-3.5 h-3.5" />
+                  <span className="hidden sm:inline">Register</span>
+                </Link>
+              </>
+            ) : (
+              /* If logged in: Show Profile Dropdown */
               <div className="relative">
                 <button
                   onClick={() => setShowUserMenu(!showUserMenu)}
@@ -212,7 +216,7 @@ export const Navbar = ({ toggleSidebar, sidebarOpen }) => {
                   title="User Profile"
                 >
                   <img
-                    src={currentUser.avatar}
+                    src={currentUser.avatar || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&auto=format&fit=crop&q=80'}
                     alt={currentUser.name}
                     className="w-6 h-6 rounded-full object-cover"
                   />
@@ -224,7 +228,7 @@ export const Navbar = ({ toggleSidebar, sidebarOpen }) => {
                     <div className="px-3.5 py-2 border-b border-stone-100">
                       <p className="text-xs font-bold text-stone-900">{currentUser.name}</p>
                       <p className="text-[11px] text-emerald-700 font-medium capitalize">
-                        {currentUser.roleTitle || currentUser.role.replace(/_/g, ' ').toLowerCase()}
+                        {currentUser.roleTitle || currentUser.role?.replace(/_/g, ' ').toLowerCase()}
                       </p>
                       <p className="text-[10px] text-stone-400 truncate">{currentUser.email}</p>
                     </div>
@@ -237,14 +241,6 @@ export const Navbar = ({ toggleSidebar, sidebarOpen }) => {
                       >
                         <LayoutDashboard className="w-3.5 h-3.5 text-stone-400" />
                         <span>Go to Dashboard</span>
-                      </Link>
-                      <Link
-                        to="/login"
-                        onClick={() => setShowUserMenu(false)}
-                        className="flex items-center gap-2 px-3.5 py-2 text-xs text-stone-700 hover:bg-stone-50 font-medium"
-                      >
-                        <User className="w-3.5 h-3.5 text-stone-400" />
-                        <span>Switch Persona / Account</span>
                       </Link>
                     </div>
 
@@ -311,13 +307,45 @@ export const Navbar = ({ toggleSidebar, sidebarOpen }) => {
             >
               About AgriTrade
             </button>
-            <Link
-              to="/dashboard"
-              onClick={() => setShowMobileNav(false)}
-              className="block px-3 py-2 rounded-xl text-xs font-semibold text-emerald-800 bg-emerald-50 border border-emerald-200"
-            >
-              Dashboard
-            </Link>
+            {currentUser ? (
+              <>
+                <Link
+                  to="/dashboard"
+                  onClick={() => setShowMobileNav(false)}
+                  className="block px-3 py-2 rounded-xl text-xs font-semibold text-emerald-800 bg-emerald-50 border border-emerald-200"
+                >
+                  Dashboard
+                </Link>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowMobileNav(false);
+                    logout();
+                    navigate('/login');
+                  }}
+                  className="w-full text-left px-3 py-2 rounded-xl text-xs font-semibold text-red-600 hover:bg-red-50"
+                >
+                  Sign Out ({currentUser.name})
+                </button>
+              </>
+            ) : (
+              <div className="pt-2 border-t border-stone-100 flex gap-2">
+                <Link
+                  to="/login"
+                  onClick={() => setShowMobileNav(false)}
+                  className="flex-1 text-center py-2 rounded-xl text-xs font-semibold text-stone-700 bg-stone-100 hover:bg-stone-200"
+                >
+                  Login
+                </Link>
+                <Link
+                  to="/register"
+                  onClick={() => setShowMobileNav(false)}
+                  className="flex-1 text-center py-2 rounded-xl text-xs font-semibold text-white bg-emerald-700 hover:bg-emerald-800"
+                >
+                  Register
+                </Link>
+              </div>
+            )}
           </div>
         )}
       </header>

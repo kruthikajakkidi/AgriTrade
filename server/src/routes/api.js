@@ -60,62 +60,141 @@ router.post('/reset', (req, res) => {
 });
 
 // ==========================================
-// 2. AUTHENTICATION & DEMO PROFILES
+// 2. AUTHENTICATION & USER MANAGEMENT
 // ==========================================
 router.post('/auth/login', (req, res) => {
-  const { identifier, role } = req.body;
+  const { email, identifier, password } = req.body;
+  const loginId = (email || identifier || '').trim().toLowerCase();
+  const loginPass = (password || '').trim();
+
+  if (!loginId || !loginPass) {
+    return res.status(400).json({ error: 'Email and password are required.' });
+  }
+
   const users = db.get('users');
+  const user = users.find(u =>
+    (u.email && u.email.toLowerCase() === loginId) ||
+    (u.phone && u.phone.replace(/[\s+-]/g, '') === loginId.replace(/[\s+-]/g, ''))
+  );
 
-  // If role is provided or identifier matches email/phone
-  let user = null;
-  if (role) {
-    user = users.find(u => u.role === role);
-  }
-  if (!user && identifier) {
-    user = users.find(u => u.email.toLowerCase() === identifier.toLowerCase() || u.phone === identifier);
-  }
-
-  // Fallback to first farmer if not found
   if (!user) {
-    user = users.find(u => u.role === 'FARMER') || users[0];
+    return res.status(401).json({ error: 'No account found with this email or phone number. Please register.' });
   }
+
+  // Password verification: check user.password, or default initial seed password 'password123'
+  const validPassword = user.password || 'password123';
+  if (loginPass !== validPassword) {
+    return res.status(401).json({ error: 'Incorrect password. Please verify your credentials and try again.' });
+  }
+
+  // Create sanitized user (exclude password)
+  const { password: _, ...sanitizedUser } = user;
+  const token = `agri_token_${user.id}_${Date.now()}`;
+
+  recordAudit(user.name, user.role, 'USER_LOGIN', 'User', user.id, 'ACTIVE', 'ACTIVE', 'User signed in successfully');
 
   res.json({
     success: true,
-    user,
-    token: `agri_token_${user.id}_${Date.now()}`
+    user: sanitizedUser,
+    token
   });
 });
 
 router.post('/auth/register', (req, res) => {
-  const { name, email, phone, role, location, organization, farmName } = req.body;
+  const { name, email, phone, password, role, location, organization, farmName, acreage, licenseNumber } = req.body;
   
-  if (!name || !role) {
-    return res.status(400).json({ error: 'Name and Role are required.' });
+  if (!name || !email || !password || !role) {
+    return res.status(400).json({ error: 'Full name, email, password, and role are required.' });
   }
 
+  if (password.length < 6) {
+    return res.status(400).json({ error: 'Password must be at least 6 characters in length.' });
+  }
+
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(email.trim())) {
+    return res.status(400).json({ error: 'Please enter a valid email address.' });
+  }
+
+  const users = db.get('users');
+  const existingUser = users.find(u => u.email && u.email.toLowerCase() === email.trim().toLowerCase());
+  if (existingUser) {
+    return res.status(400).json({ error: 'An account with this email address already exists. Please sign in instead.' });
+  }
+
+  const roleKey = role.toUpperCase();
+  const roleTitles = {
+    FARMER: 'Farmer / Producer',
+    BUYER: 'Enterprise Procurement Buyer',
+    COLLECTION_CENTER: 'Collection Center Manager',
+    QUALITY_INSPECTOR: 'Certified Quality Inspector',
+    LOGISTICS: 'Logistics Fleet Coordinator',
+    ADMIN: 'Platform Administrator'
+  };
+
   const newUser = {
-    id: `usr_${role.toLowerCase()}_${Date.now().toString().slice(-4)}`,
-    name,
-    email: email || `${name.toLowerCase().replace(/\s+/g, '')}@agritrade.org`,
-    phone: phone || '+91 99999 00000',
-    role: role.toUpperCase(),
+    id: `usr_${roleKey.toLowerCase()}_${Date.now().toString().slice(-5)}`,
+    name: name.trim(),
+    email: email.trim().toLowerCase(),
+    phone: phone ? phone.trim() : '+91 99999 00000',
+    password: password.trim(),
+    role: roleKey,
+    roleTitle: roleTitles[roleKey] || roleKey,
     location: location || 'Telangana, India',
-    organization: organization || (role === 'BUYER' ? 'Agri Agro Procurements' : undefined),
-    farmName: farmName || (role === 'FARMER' ? `${name}'s Farm` : undefined),
+    organization: roleKey === 'BUYER' ? (organization || 'Agri Enterprise Millers') : undefined,
+    farmName: roleKey === 'FARMER' ? (farmName || `${name.trim()}'s Organic Farm`) : undefined,
+    acreage: roleKey === 'FARMER' ? acreage : undefined,
+    certificationNumber: roleKey === 'QUALITY_INSPECTOR' ? (licenseNumber || 'AGMARK-QI-2026-CERT') : undefined,
     avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&auto=format&fit=crop&q=80',
     verified: true,
     joinedDate: new Date().toISOString().split('T')[0]
   };
 
   db.create('users', newUser);
-  recordAudit(name, role, 'REGISTER_USER', 'User', newUser.id, 'NEW', 'ACTIVE', `User registered with role ${role}`);
+  recordAudit(name, roleKey, 'REGISTER_USER', 'User', newUser.id, 'NEW', 'ACTIVE', `New user registered with role ${roleKey}`);
+
+  const { password: _, ...sanitizedUser } = newUser;
+  const token = `agri_token_${newUser.id}_${Date.now()}`;
 
   res.status(201).json({
     success: true,
-    user: newUser,
-    token: `agri_token_${newUser.id}_${Date.now()}`
+    user: sanitizedUser,
+    token
   });
+});
+
+router.get('/auth/me', (req, res) => {
+  const authHeader = req.headers.authorization;
+  if (!authHeader) {
+    return res.status(401).json({ error: 'Unauthorized: No token provided' });
+  }
+
+  const token = authHeader.replace('Bearer ', '');
+  const users = db.get('users');
+  
+  // Match user from token
+  const tokenParts = token.split('_');
+  if (tokenParts.length >= 3) {
+    const userId = tokenParts.slice(2, -1).join('_') || `usr_${tokenParts[2]}`;
+    const user = users.find(u => u.id === userId || token.includes(u.id));
+    if (user) {
+      const { password: _, ...sanitizedUser } = user;
+      return res.json({ success: true, user: sanitizedUser });
+    }
+  }
+
+  // Fallback to token search
+  const foundUser = users.find(u => token.includes(u.id));
+  if (foundUser) {
+    const { password: _, ...sanitizedUser } = foundUser;
+    return res.json({ success: true, user: sanitizedUser });
+  }
+
+  res.status(401).json({ error: 'Session expired or invalid token.' });
+});
+
+router.post('/auth/logout', (req, res) => {
+  res.json({ success: true, message: 'Logged out successfully.' });
 });
 
 router.get('/users', (req, res) => {

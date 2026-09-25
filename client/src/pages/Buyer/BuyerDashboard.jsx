@@ -91,6 +91,10 @@ export const BuyerDashboard = () => {
   ];
 
   const handleOpenPoModal = (lot) => {
+    if (!currentUser) {
+      navigate('/login', { state: { from: { pathname: '/buyer/marketplace' } } });
+      return;
+    }
     setSelectedLotForPo(lot);
     setOrderQuantity(lot.quantity.toString());
     setTargetPrice((lot.expectedPrice || 40).toString());
@@ -121,10 +125,10 @@ export const BuyerDashboard = () => {
         <div>
           <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md bg-stone-100 text-stone-700 text-xs font-medium mb-1">
             <Building2 className="w-3.5 h-3.5 text-stone-500" />
-            <span>{currentUser.organization || 'Grain Millers & Exporters Ltd'}</span>
+            <span>{currentUser?.organization || 'Enterprise Procurement Network'}</span>
           </span>
           <h1 className="text-xl sm:text-2xl font-bold text-stone-900">
-            Good morning, {currentUser.name.split(' ')[0]}
+            Good morning, {currentUser?.name ? currentUser.name.split(' ')[0] : 'Procurement Partner'}
           </h1>
           <p className="text-xs text-stone-500 mt-0.5">
             Agricultural Procurement Marketplace • Verified Farm Lots & Escrow Protection

@@ -74,65 +74,73 @@ export const DEMO_PROFILES = {
 
 export const AuthProvider = ({ children }) => {
   const [currentUser, setCurrentUser] = useState(() => {
-    const saved = localStorage.getItem('agritrade_user');
-    return saved ? JSON.parse(saved) : DEMO_PROFILES.FARMER;
+    try {
+      const saved = localStorage.getItem('agritrade_user');
+      return saved ? JSON.parse(saved) : null;
+    } catch (e) {
+      return null;
+    }
   });
 
-  const [token, setToken] = useState(() => localStorage.getItem('agritrade_token') || 'demo_token');
+  const [token, setToken] = useState(() => localStorage.getItem('agritrade_token') || null);
 
   useEffect(() => {
-    localStorage.setItem('agritrade_user', JSON.stringify(currentUser));
+    if (currentUser) {
+      localStorage.setItem('agritrade_user', JSON.stringify(currentUser));
+    } else {
+      localStorage.removeItem('agritrade_user');
+    }
   }, [currentUser]);
+
+  useEffect(() => {
+    if (token) {
+      localStorage.setItem('agritrade_token', token);
+    } else {
+      localStorage.removeItem('agritrade_token');
+    }
+  }, [token]);
 
   const switchRole = (roleKey) => {
     const profile = DEMO_PROFILES[roleKey];
     if (profile) {
       setCurrentUser(profile);
       setToken(`token_${profile.id}`);
-      localStorage.setItem('agritrade_token', `token_${profile.id}`);
     }
   };
 
-  const login = async (identifier, role) => {
+  const login = async (email, password) => {
     try {
-      const data = await api.login(identifier, role);
-      if (data.user) {
+      const data = await api.login(email, password);
+      if (data.user && data.token) {
         setCurrentUser(data.user);
         setToken(data.token);
         return { success: true, user: data.user };
       }
-    } catch (e) {
-      // Fallback to local profile
-      const foundRole = Object.values(DEMO_PROFILES).find(p => p.role === role);
-      if (foundRole) {
-        setCurrentUser(foundRole);
-        return { success: true, user: foundRole };
-      }
+      return { success: false, error: 'Login failed' };
+    } catch (err) {
+      return { success: false, error: err.message || 'Login failed' };
     }
-    return { success: false, error: 'Login failed' };
   };
 
   const register = async (userData) => {
     try {
       const data = await api.register(userData);
-      if (data.user) {
+      if (data.user && data.token) {
         setCurrentUser(data.user);
         setToken(data.token);
         return { success: true, user: data.user };
       }
-    } catch (e) {
-      const newUser = {
-        ...userData,
-        id: `usr_${Date.now()}`,
-        avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&auto=format&fit=crop&q=80'
-      };
-      setCurrentUser(newUser);
-      return { success: true, user: newUser };
+      return { success: false, error: 'Registration failed' };
+    } catch (err) {
+      return { success: false, error: err.message || 'Registration failed' };
     }
   };
 
   const logout = () => {
-    setCurrentUser(DEMO_PROFILES.FARMER);
+    setCurrentUser(null);
+    setToken(null);
+    localStorage.removeItem('agritrade_user');
+    localStorage.removeItem('agritrade_token');
   };
 
   return (
@@ -143,12 +151,13 @@ export const AuthProvider = ({ children }) => {
       login,
       register,
       logout,
-      isFarmer: currentUser.role === 'FARMER',
-      isBuyer: currentUser.role === 'BUYER',
-      isInspector: currentUser.role === 'QUALITY_INSPECTOR',
-      isManager: currentUser.role === 'COLLECTION_CENTER',
-      isLogistics: currentUser.role === 'LOGISTICS',
-      isAdmin: currentUser.role === 'ADMIN'
+      isAuthenticated: !!currentUser,
+      isFarmer: currentUser?.role === 'FARMER',
+      isBuyer: currentUser?.role === 'BUYER',
+      isInspector: currentUser?.role === 'QUALITY_INSPECTOR',
+      isManager: currentUser?.role === 'COLLECTION_CENTER',
+      isLogistics: currentUser?.role === 'LOGISTICS',
+      isAdmin: currentUser?.role === 'ADMIN'
     }}>
       {children}
     </AuthContext.Provider>
