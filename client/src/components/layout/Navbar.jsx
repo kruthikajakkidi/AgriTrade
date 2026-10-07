@@ -21,6 +21,7 @@ import {
   ShoppingBag
 } from 'lucide-react';
 import { AboutModal } from '../common/AboutModal';
+import { UserAvatar } from '../common/UserAvatar';
 
 export const Navbar = ({ toggleSidebar, sidebarOpen }) => {
   const { currentUser, logout } = useAuth();
@@ -215,11 +216,7 @@ export const Navbar = ({ toggleSidebar, sidebarOpen }) => {
                   className="flex items-center gap-2 p-1.5 rounded-xl hover:bg-stone-100 transition border border-stone-200"
                   title="User Profile"
                 >
-                  <img
-                    src={currentUser.avatar || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&auto=format&fit=crop&q=80'}
-                    alt={currentUser.name}
-                    className="w-6 h-6 rounded-full object-cover"
-                  />
+                  <UserAvatar user={currentUser} size="xs" />
                   <ChevronDown className="w-3 h-3 text-stone-500 hidden sm:block" />
                 </button>
 

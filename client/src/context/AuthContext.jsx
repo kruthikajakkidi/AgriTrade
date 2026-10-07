@@ -12,7 +12,7 @@ export const DEMO_PROFILES = {
     roleTitle: 'Farmer / Producer',
     location: 'Siddipet, Telangana',
     farmName: 'Ravi Organic Green Farms (12 Acres)',
-    avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80',
+    avatar: '',
     tagline: 'Farmer-Friendly Mobile Experience'
   },
   COLLECTION_CENTER: {
@@ -23,7 +23,7 @@ export const DEMO_PROFILES = {
     roleTitle: 'Collection Center Manager',
     location: 'Warangal, Telangana',
     centerName: 'Warangal Agri-Logistics Hub #4',
-    avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&auto=format&fit=crop&q=80',
+    avatar: '',
     tagline: 'Intake, Weighing & Warehouse Bays'
   },
   QUALITY_INSPECTOR: {
@@ -34,7 +34,7 @@ export const DEMO_PROFILES = {
     roleTitle: 'Quality Inspector',
     location: 'Regional Testing Lab #2',
     certificationNumber: 'AGMARK-QI-2024-88',
-    avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&auto=format&fit=crop&q=80',
+    avatar: '',
     tagline: 'AI-Assisted Quality & Lab Grading'
   },
   BUYER: {
@@ -45,7 +45,7 @@ export const DEMO_PROFILES = {
     roleTitle: 'Enterprise Procurement Buyer',
     location: 'Hyderabad, Telangana',
     organization: 'Grain Millers & Exporters Ltd',
-    avatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150&auto=format&fit=crop&q=80',
+    avatar: '',
     tagline: 'Marketplace, AI Match & PO Management'
   },
   LOGISTICS: {
@@ -56,7 +56,7 @@ export const DEMO_PROFILES = {
     roleTitle: 'Logistics Fleet Coordinator',
     location: 'Secunderabad Yard',
     agency: 'Kisan Express Cargo & Reefer Fleet',
-    avatar: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=150&auto=format&fit=crop&q=80',
+    avatar: '',
     tagline: 'Fleet Tracking & Route Waypoints'
   },
   ADMIN: {
@@ -67,7 +67,7 @@ export const DEMO_PROFILES = {
     roleTitle: 'Platform Administrator',
     location: 'New Delhi HQ',
     department: 'Platform Governance & Operations',
-    avatar: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?w=150&auto=format&fit=crop&q=80',
+    avatar: '',
     tagline: 'KPIs, Audit Trail & Settlement Approvals'
   }
 };

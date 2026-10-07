@@ -8,7 +8,7 @@ export const initialUsers = [
     role: 'FARMER',
     location: 'Siddipet, Telangana',
     farmName: 'Ravi Organic Green Farms (12 Acres)',
-    avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80',
+    avatar: '',
     verified: true,
     rating: 4.9,
     joinedDate: '2023-04-15'
@@ -22,7 +22,7 @@ export const initialUsers = [
     role: 'BUYER',
     organization: 'Grain Millers & Exporters Ltd',
     location: 'Hyderabad, Telangana',
-    avatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150&auto=format&fit=crop&q=80',
+    avatar: '',
     verified: true,
     procurementVolume: '450 Tons/Year',
     joinedDate: '2022-11-20'
@@ -36,7 +36,7 @@ export const initialUsers = [
     role: 'COLLECTION_CENTER',
     centerName: 'Warangal Agri-Logistics Hub #4',
     location: 'Warangal, Telangana',
-    avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&auto=format&fit=crop&q=80',
+    avatar: '',
     capacity: '100 Tons',
     joinedDate: '2021-08-10'
   },
@@ -49,7 +49,7 @@ export const initialUsers = [
     role: 'QUALITY_INSPECTOR',
     certificationNumber: 'AGMARK-QI-2024-88',
     location: 'Regional Testing Lab, Warangal',
-    avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&auto=format&fit=crop&q=80',
+    avatar: '',
     inspectionsCompleted: 1420,
     joinedDate: '2020-03-01'
   },
@@ -62,7 +62,7 @@ export const initialUsers = [
     role: 'LOGISTICS',
     agency: 'Kisan Express Cargo & Reefer Fleet',
     location: 'Secunderabad Logistics Yard',
-    avatar: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=150&auto=format&fit=crop&q=80',
+    avatar: '',
     fleetSize: 18,
     joinedDate: '2022-01-14'
   },
@@ -75,7 +75,7 @@ export const initialUsers = [
     role: 'ADMIN',
     department: 'Platform Governance & Settlement Operations',
     location: 'National HQ, New Delhi',
-    avatar: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?w=150&auto=format&fit=crop&q=80',
+    avatar: '',
     joinedDate: '2020-01-01'
   }
 ];

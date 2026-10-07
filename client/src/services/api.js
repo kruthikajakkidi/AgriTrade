@@ -258,5 +258,20 @@ export const api = {
   getCropImages: async () => {
     const res = await fetch(`${BASE_URL}/crops/images`);
     return await res.json();
+  },
+
+  // Media / Cloudinary Upload
+  uploadImage: async (file, folder = 'agritrade/uploads') => {
+    const formData = new FormData();
+    formData.append('image', file);
+    formData.append('folder', folder);
+
+    const res = await fetch(`${BASE_URL}/upload`, {
+      method: 'POST',
+      body: formData
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Failed to upload image');
+    return data;
   }
 };

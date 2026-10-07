@@ -4,6 +4,7 @@ import { validateStateTransition, getTimelineStageDetails } from '../services/st
 import { predictQuality } from '../services/aiQualityService.js';
 import { predictCropPrice, getHistoricalPriceTrends, MSP_BENCHMARKS } from '../services/cropPriceMlService.js';
 import { CROP_IMAGES } from '../data/seedData.js';
+import { upload, uploadToCloudinary } from '../config/cloudinary.js';
 
 const router = express.Router();
 
@@ -101,7 +102,7 @@ router.post('/auth/login', (req, res) => {
 });
 
 router.post('/auth/register', (req, res) => {
-  const { name, email, phone, password, role, location, organization, farmName, acreage, licenseNumber } = req.body;
+  const { name, email, phone, password, role, location, organization, farmName, acreage, licenseNumber, avatar } = req.body;
   
   if (!name || !email || !password || !role) {
     return res.status(400).json({ error: 'Full name, email, password, and role are required.' });
@@ -145,7 +146,7 @@ router.post('/auth/register', (req, res) => {
     farmName: roleKey === 'FARMER' ? (farmName || `${name.trim()}'s Organic Farm`) : undefined,
     acreage: roleKey === 'FARMER' ? acreage : undefined,
     certificationNumber: roleKey === 'QUALITY_INSPECTOR' ? (licenseNumber || 'AGMARK-QI-2026-CERT') : undefined,
-    avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&auto=format&fit=crop&q=80',
+    avatar: avatar || '',
     verified: true,
     joinedDate: new Date().toISOString().split('T')[0]
   };
@@ -161,6 +162,29 @@ router.post('/auth/register', (req, res) => {
     user: sanitizedUser,
     token
   });
+});
+
+// Cloudinary / Media Upload Endpoint
+router.post('/upload', upload.single('image'), async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ error: 'No image file provided. Please attach a file to form-data field "image".' });
+    }
+
+    const folder = req.body.folder || 'agritrade/uploads';
+    const result = await uploadToCloudinary(req.file.buffer, { folder });
+
+    res.json({
+      success: true,
+      url: result.secure_url || result.url,
+      public_id: result.public_id,
+      fallback: !!result.fallback,
+      message: result.message || 'Image uploaded successfully'
+    });
+  } catch (err) {
+    console.error('Cloudinary upload failure:', err);
+    res.status(500).json({ error: 'Failed to upload image.', details: err.message });
+  }
 });
 
 router.get('/auth/me', (req, res) => {

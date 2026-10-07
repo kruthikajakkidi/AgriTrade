@@ -1,6 +1,7 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import { UserAvatar } from '../common/UserAvatar';
 import {
   LayoutDashboard,
   Sprout,
@@ -118,11 +119,7 @@ export const Sidebar = ({ isOpen, closeSidebar }) => {
           {/* User Persona Banner */}
           <div className="p-3.5 rounded-2xl bg-forest-50/80 border border-forest-200/80">
             <div className="flex items-center gap-3">
-              <img
-                src={currentUser.avatar}
-                alt={currentUser.name}
-                className="w-10 h-10 rounded-xl object-cover ring-2 ring-forest-600/30"
-              />
+              <UserAvatar user={currentUser} size="md" className="rounded-xl ring-2 ring-forest-600/30 flex-shrink-0" />
               <div className="min-w-0 flex-1">
                 <p className="text-xs font-bold text-gray-900 truncate">{currentUser.name}</p>
                 <p className="text-[11px] font-semibold text-forest-700 truncate capitalize">
