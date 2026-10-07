@@ -1,6 +1,21 @@
 {
   "users": [
     {
+      "id": "usr_farmer_80013",
+      "name": "farmer1",
+      "email": "farmer1@gmail.com",
+      "phone": "1234567890",
+      "password": "kruthika",
+      "role": "FARMER",
+      "roleTitle": "Farmer / Producer",
+      "location": "warangal",
+      "farmName": "The originals",
+      "acreage": "5",
+      "avatar": "",
+      "verified": true,
+      "joinedDate": "2026-10-07"
+    },
+    {
       "id": "usr_farmer_73944",
       "name": "Jakkidi Kruthika Reddy",
       "email": "kruthikajakkdi@gmail.com",
@@ -752,6 +767,18 @@
     }
   ],
   "auditLogs": [
+    {
+      "id": "AUD-0016",
+      "userName": "farmer1",
+      "userRole": "FARMER",
+      "action": "REGISTER_USER",
+      "entityType": "User",
+      "entityId": "usr_farmer_80013",
+      "previousStatus": "NEW",
+      "newStatus": "ACTIVE",
+      "timestamp": "07 Oct 2026, 13:41",
+      "details": "New user registered with role FARMER"
+    },
     {
       "id": "AUD-3948",
       "userName": "Jakkidi Kruthika Reddy",

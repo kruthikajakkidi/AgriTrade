@@ -1,10 +1,35 @@
 import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
+import mongoose from 'mongoose';
+import dns from 'dns';
 import apiRoutes from './routes/api.js';
+
+// Ensure reliable DNS resolution for MongoDB Atlas SRV connection strings
+try {
+  dns.setServers(['8.8.8.8', '1.1.1.1']);
+} catch (dnsErr) {
+  // Use default OS resolver
+}
 
 const app = express();
 const PORT = process.env.PORT || 5000;
+
+// Connect to MongoDB Atlas (if URI provided)
+const mongoURI = process.env.MONGODB_URI;
+if (mongoURI && (process.env.USE_MONGODB === 'true' || process.env.USE_MONGODB === undefined)) {
+  mongoose.connect(mongoURI, {
+    dbName: 'AgriTrade',
+    serverSelectionTimeoutMS: 6000
+  })
+  .then(() => {
+    console.log('  🍃 MongoDB Atlas: Connected successfully to AgriTrade cluster');
+  })
+  .catch((err) => {
+    console.warn(`  ⚠️ MongoDB Atlas connection notice: ${err.message}`);
+    console.log('  📦 Resilient Dual-Engine: Local DataStore remains active');
+  });
+}
 
 // Middleware
 app.use(cors({
@@ -35,7 +60,8 @@ app.get('/', (req, res) => {
     message: 'Welcome to AgriTrade Core API',
     description: 'Farm Produce Procurement & Supply Chain Management Platform',
     status: 'online',
-    endpoints: '/api/health, /api/lots, /api/orders, /api/warehouse, /api/shipments, /api/analytics'
+    database: mongoose.connection.readyState === 1 ? 'MongoDB Atlas (Connected)' : 'Local Resilient DataStore',
+    endpoints: '/api/health, /api/lots, /api/orders, /api/warehouse, /api/shipments, /api/upload'
   });
 });
 
@@ -55,11 +81,17 @@ app.use((err, req, res, next) => {
 
 // Start listening
 const server = app.listen(PORT, () => {
+  const isCloudinaryActive = Boolean(
+    (process.env.CLOUDINARY_CLOUD_NAME && process.env.CLOUDINARY_CLOUD_NAME !== 'your_cloudinary_cloud_name') ||
+    process.env.CLOUDINARY_URL
+  );
+
   console.log(`
   =============================================================
   🌾 AgriTrade Server Running Successfully!
   🚀 Port: http://localhost:${PORT}
   📡 API Health: http://localhost:${PORT}/api/health
+  ☁️ Cloudinary Uploads: ${isCloudinaryActive ? 'Configured (' + (process.env.CLOUDINARY_CLOUD_NAME || 'URL') + ')' : 'Ready (Offline Fallback Active)'}
   🏬 Supply Chain State Machine: Active
   =============================================================
   `);

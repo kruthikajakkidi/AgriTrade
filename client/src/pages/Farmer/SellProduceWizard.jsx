@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAppData } from '../../context/AppDataContext';
 import { useAuth } from '../../context/AuthContext';
+import { api } from '../../services/api';
 import { getCropImage, CROP_IMAGES } from '../../utils/cropImages';
 import confetti from 'canvas-confetti';
 import {
@@ -32,6 +33,7 @@ export const SellProduceWizard = () => {
   const [submittedLot, setSubmittedLot] = useState(null);
   const [submitting, setSubmitting] = useState(false);
   const [showQrModal, setShowQrModal] = useState(false);
+  const [uploadingImage, setUploadingImage] = useState(false);
 
   // Form State
   const [cropName, setCropName] = useState('Rice');
@@ -40,11 +42,28 @@ export const SellProduceWizard = () => {
   const [quantity, setQuantity] = useState('1200');
   const [unit, setUnit] = useState('kg');
   const [harvestDate, setHarvestDate] = useState(new Date().toISOString().split('T')[0]);
-  const [farmName, setFarmName] = useState(currentUser.farmName || 'Ravi Green Farms (12 Acres)');
+  const [farmName, setFarmName] = useState(currentUser?.farmName || 'Organic Green Farm');
   const [expectedPrice, setExpectedPrice] = useState('42');
-  const [farmLocation, setFarmLocation] = useState(currentUser.location || 'Siddipet District, Telangana');
+  const [farmLocation, setFarmLocation] = useState(currentUser?.location || 'Siddipet District, Telangana');
   const [collectionCenter, setCollectionCenter] = useState('Warangal Agri-Logistics Hub #4');
   const [photoPreview, setPhotoPreview] = useState(CROP_IMAGES.Rice);
+
+  const handleFileUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploadingImage(true);
+    try {
+      const res = await api.uploadImage(file, 'agritrade/crops');
+      if (res.url) {
+        setPhotoPreview(res.url);
+      }
+    } catch (err) {
+      console.warn('Upload error, using local object preview:', err);
+      setPhotoPreview(URL.createObjectURL(file));
+    } finally {
+      setUploadingImage(false);
+    }
+  };
 
   const CROPS_CATALOG = [
     { name: 'Rice', icon: '🌾', variety: 'Sona Masoori', defaultPrice: '42', msp: '23.0' },
@@ -444,27 +463,48 @@ export const SellProduceWizard = () => {
           </div>
         )}
 
-        {/* STEP 4: Produce Photo Preview */}
+        {/* STEP 4: Produce Photo Preview & Cloudinary Upload */}
         {step === 4 && (
           <div className="space-y-4">
             <div>
               <h2 className="text-base font-bold text-stone-900">Step 4 — Produce Photograph</h2>
               <p className="text-xs text-stone-500">
-                Verified high-resolution crop sample matching {cropName}.
+                Upload your actual field harvest photo or use the standard verified crop photograph.
               </p>
             </div>
 
             <div className="space-y-3">
-              <div className="h-52 rounded-xl overflow-hidden border border-stone-200 relative">
+              <div className="h-52 rounded-xl overflow-hidden border border-stone-200 relative bg-stone-100">
                 <img src={photoPreview} alt={cropName} className="w-full h-full object-cover" />
                 <div className="absolute bottom-2 left-2 bg-black/60 px-2.5 py-1 rounded text-white text-[11px] font-medium">
-                  Verified sample photograph for {cropName} ({variety})
+                  {cropName} ({variety})
                 </div>
+              </div>
+
+              <div className="flex flex-wrap items-center gap-3">
+                <label className="cursor-pointer inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-emerald-800 hover:bg-emerald-900 text-white text-xs font-semibold shadow-xs transition">
+                  <Upload className="w-3.5 h-3.5" />
+                  <span>{uploadingImage ? 'Uploading via Cloudinary...' : 'Upload Harvest Photo (Cloudinary)'}</span>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleFileUpload}
+                    className="hidden"
+                    disabled={uploadingImage}
+                  />
+                </label>
+                <button
+                  type="button"
+                  onClick={() => setPhotoPreview(getCropImage(cropName))}
+                  className="text-xs text-stone-600 hover:text-stone-900 underline"
+                >
+                  Reset to default sample
+                </button>
               </div>
 
               <div className="p-3 rounded-xl bg-stone-50 border border-stone-200 text-xs text-stone-600 flex items-center justify-between">
                 <span>Produce Type: <strong>{cropName}</strong></span>
-                <span className="text-emerald-800 font-medium">Image Matched ✓</span>
+                <span className="text-emerald-800 font-medium">Photo Ready ✓</span>
               </div>
             </div>
           </div>
