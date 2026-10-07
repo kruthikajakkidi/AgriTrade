@@ -11,7 +11,8 @@ import {
   FileCheck,
   CheckCheck,
   Search,
-  Sparkles
+  Sparkles,
+  ShieldCheck
 } from 'lucide-react';
 
 export const StatusBadge = ({ status, size = 'md', className = '' }) => {
@@ -190,7 +191,7 @@ export const StatusBadge = ({ status, size = 'md', className = '' }) => {
   };
 
   const config = getBadgeConfig(status);
-  const Icon = config.icon;
+  const Icon = config.icon || Clock;
 
   const sizeClasses = {
     sm: 'px-2 py-0.5 text-xs font-medium gap-1',
