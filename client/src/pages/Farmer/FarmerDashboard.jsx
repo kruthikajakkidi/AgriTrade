@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useAppData } from '../../context/AppDataContext';
-import { getCropImage } from '../../utils/cropImages';
+import { getCropImage, resolveLotImage } from '../../utils/cropImages';
 import {
   Sprout,
   PlusCircle,
@@ -208,7 +208,7 @@ export const FarmerDashboard = () => {
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {farmerLots.map(lot => {
-            const cropImage = getCropImage(lot.cropName);
+            const cropImage = resolveLotImage(lot);
             return (
               <div
                 key={lot.id}

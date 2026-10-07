@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useAppData } from '../../context/AppDataContext';
 import { useAuth } from '../../context/AuthContext';
 import { api } from '../../services/api';
-import { getCropImage } from '../../utils/cropImages';
+import { getCropImage, resolveLotImage } from '../../utils/cropImages';
 import {
   ShieldCheck,
   Cpu,
@@ -170,7 +170,7 @@ export const InspectorDashboard = () => {
             <div className="bg-white rounded-2xl border border-stone-200 shadow-xs overflow-hidden">
               <div className="h-44 bg-stone-100 relative">
                 <img
-                  src={getCropImage(selectedLot.cropName)}
+                  src={resolveLotImage(selectedLot)}
                   alt={selectedLot.cropName}
                   className="w-full h-full object-cover"
                 />

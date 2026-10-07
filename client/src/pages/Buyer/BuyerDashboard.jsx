@@ -21,7 +21,7 @@ import {
 } from 'lucide-react';
 import { StatusBadge } from '../../components/common/StatusBadge';
 import { StatCard } from '../../components/common/StatCard';
-import { getCropImage } from '../../utils/cropImages';
+import { getCropImage, resolveLotImage } from '../../utils/cropImages';
 
 export const BuyerDashboard = () => {
   const { lots, orders, createOrder } = useAppData();
@@ -303,7 +303,7 @@ export const BuyerDashboard = () => {
         {/* Produce Cards Grid (Prompt Section 9 specification) */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {filteredLots.map(lot => {
-            const cropImg = getCropImage(lot.cropName);
+            const cropImg = resolveLotImage(lot);
             return (
               <div
                 key={lot.id}

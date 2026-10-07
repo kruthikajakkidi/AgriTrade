@@ -15,7 +15,7 @@ import {
 } from 'lucide-react';
 import { StatusBadge } from '../../components/common/StatusBadge';
 import { QRCodeModal } from '../../components/common/QRCodeModal';
-import { getCropImage } from '../../utils/cropImages';
+import { getCropImage, resolveLotImage } from '../../utils/cropImages';
 
 export const FarmerLotsView = () => {
   const { lots } = useAppData();
@@ -96,7 +96,7 @@ export const FarmerLotsView = () => {
             >
               <div className="relative h-44 bg-stone-100">
                 <img
-                  src={getCropImage(lot.cropName)}
+                  src={resolveLotImage(lot)}
                   alt={lot.cropName}
                   className="w-full h-full object-cover"
                 />

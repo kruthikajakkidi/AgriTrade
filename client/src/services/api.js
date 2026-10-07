@@ -1,4 +1,4 @@
-const BASE_URL = import.meta.env.VITE_API_URL || '/api';
+const BASE_URL = import.meta.env.VITE_API_URL || (import.meta.env.PROD ? 'https://agritrade-5oq3.onrender.com/api' : 'https://agritrade-5oq3.onrender.com/api');
 
 export const api = {
   // Health

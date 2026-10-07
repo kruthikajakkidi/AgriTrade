@@ -19,7 +19,7 @@ import {
 import { StatusBadge } from '../components/common/StatusBadge';
 import { Timeline } from '../components/common/Timeline';
 import { QRCodeModal } from '../components/common/QRCodeModal';
-import { getCropImage } from '../utils/cropImages';
+import { getCropImage, resolveLotImage } from '../utils/cropImages';
 
 export const ProduceLotDetails = () => {
   const { id } = useParams();
@@ -85,7 +85,7 @@ export const ProduceLotDetails = () => {
           {/* Left: Image */}
           <div className="relative h-64 md:h-auto bg-stone-100">
             <img
-              src={getCropImage(lot.cropName)}
+              src={resolveLotImage(lot)}
               alt={lot.cropName}
               className="w-full h-full object-cover"
             />

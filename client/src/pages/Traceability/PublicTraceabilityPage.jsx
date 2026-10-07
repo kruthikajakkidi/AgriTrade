@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useAppData } from '../../context/AppDataContext';
-import { getCropImage } from '../../utils/cropImages';
+import { getCropImage, resolveLotImage } from '../../utils/cropImages';
 import {
   ShieldCheck,
   Sprout,
@@ -68,7 +68,7 @@ export const PublicTraceabilityPage = () => {
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-center">
                 <div className="h-56 rounded-2xl overflow-hidden shadow-xs border border-stone-200 relative">
                   <img
-                    src={getCropImage(lot.cropName)}
+                    src={resolveLotImage(lot)}
                     alt={lot.cropName}
                     className="w-full h-full object-cover"
                   />

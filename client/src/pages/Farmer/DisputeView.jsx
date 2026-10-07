@@ -23,7 +23,7 @@ export const DisputeView = () => {
   const [lotId, setLotId] = useState(lots[0]?.id || 'LOT-2026-00127');
   const [category, setCategory] = useState('Wrong quality grade');
   const [description, setDescription] = useState('');
-  const [evidenceUrl, setEvidenceUrl] = useState('https://images.unsplash.com/photo-1606041008023-472dfb5e530f?w=600&auto=format&fit=crop&q=80');
+  const [evidenceUrl, setEvidenceUrl] = useState('https://images.unsplash.com/photo-1509783236416-c9ad59bae472?w=600&auto=format&fit=crop&q=80');
 
   const categories = [
     'Wrong weight',

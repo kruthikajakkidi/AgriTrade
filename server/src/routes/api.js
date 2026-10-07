@@ -297,16 +297,7 @@ router.post('/lots', (req, res) => {
     }
   ];
 
-  const defaultCropImages = {
-    Rice: 'https://images.unsplash.com/photo-1586201375761-83865001e31c?w=600&auto=format&fit=crop&q=80',
-    Wheat: 'https://images.unsplash.com/photo-1574323347407-f5e1ad6d020b?w=600&auto=format&fit=crop&q=80',
-    Cotton: 'https://images.unsplash.com/photo-1606041008023-472dfb5e530f?w=600&auto=format&fit=crop&q=80',
-    Tomato: 'https://images.unsplash.com/photo-1592924357228-91a4daadcfea?w=600&auto=format&fit=crop&q=80',
-    Onion: 'https://images.unsplash.com/photo-1618512496248-a07fe83aa8cb?w=600&auto=format&fit=crop&q=80',
-    Maize: 'https://images.unsplash.com/photo-1551754655-cd27e38d2076?w=600&auto=format&fit=crop&q=80'
-  };
-
-  const lotImages = (images && images.length) ? images : [defaultCropImages[cropName] || defaultCropImages.Rice];
+  const lotImages = (images && images.length) ? images : [CROP_IMAGES[cropName] || CROP_IMAGES.Other || CROP_IMAGES.Rice];
 
   const newLot = {
     id: newLotId,

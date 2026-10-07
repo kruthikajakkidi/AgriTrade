@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useAppData } from '../../context/AppDataContext';
 import { useAuth } from '../../context/AuthContext';
-import { getCropImage } from '../../utils/cropImages';
+import { getCropImage, resolveLotImage } from '../../utils/cropImages';
 import {
   Warehouse,
   PackageCheck,
@@ -304,7 +304,7 @@ export const CollectionDashboard = () => {
                 <div key={lot.id} className="py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                   <div className="flex items-start gap-3">
                     <img
-                      src={getCropImage(lot.cropName)}
+                      src={resolveLotImage(lot)}
                       alt={lot.cropName}
                       className="w-14 h-14 rounded-xl object-cover border border-stone-200 flex-shrink-0"
                     />
